@@ -15,16 +15,14 @@
 
 ; based on python koans: about_dictionaries.py
 
-
 (define-test test-create-hash-table
     "make hash table with make-hash-table"
   (let ((my-hash-table))
     (setf my-hash-table (make-hash-table))
-    (true-or-false? ___ (typep my-hash-table 'hash-table))
-    (true-or-false? ___  (hash-table-p my-hash-table))
-    (true-or-false? ___  (hash-table-p (make-array '(3 3 3))))
-    (assert-equal ___ (hash-table-count my-hash-table))))
-
+    (true-or-false? t (typep my-hash-table 'hash-table))
+    (true-or-false? t (hash-table-p my-hash-table))
+    (true-or-false? nil (hash-table-p (make-array '(3 3 3))))
+    (assert-equal 0 (hash-table-count my-hash-table))))
 
 (define-test test-hash-table-access
     "gethash is for accessing hash tables"
@@ -37,11 +35,11 @@
 
   (setf (gethash 8 table-of-cube-roots) 2)
   (setf (gethash -3 table-of-cube-roots) -27)
-  (assert-equal ___ (gethash -3 table-of-cube-roots))
-  (assert-equal ___ (hash-table-count table-of-cube-roots))
+  (assert-equal -27 (gethash -3 table-of-cube-roots))
+  (assert-equal 3 (hash-table-count table-of-cube-roots))
 
   "accessing unset keys returns nil"
-  (assert-equal ___ (gethash 125 table-of-cube-roots))))
+  (assert-equal nil (gethash 125 table-of-cube-roots))))
 
 
 (define-test test-hash-key-equality
@@ -67,9 +65,9 @@
     (setf (gethash "one" hash-table-default) "uno")
 
     "count how many unique key-value pairs in each"
-    (assert-equal ___ (hash-table-count hash-table-eq))
-    (assert-equal ___ (hash-table-count hash-table-equal))
-    (assert-equal ___ (hash-table-count hash-table-default))))
+    (assert-equal 2 (hash-table-count hash-table-eq))
+    (assert-equal 1 (hash-table-count hash-table-equal))
+    (assert-equal 2 (hash-table-count hash-table-default))))
 
 
 (define-test test-hash-table-equality
