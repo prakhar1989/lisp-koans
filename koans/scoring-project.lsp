@@ -49,9 +49,31 @@
 ;
 ; Your goal is to write the score method.
 
+(defun count-num (n xs)
+  (let ((count 0))
+    (loop for x in xs when (equal x n)
+       do (setf count (1+ count)))
+    count))
+
+					;
+;; 1. get the counts of each number?
+;; 2. check the number of 1s. update count of 1s accordingly
+;; 3. do for other numbers as well
 (defun score (dice)
-  ; You need to write this method
-)
+  (let* ((total 0)
+	 (loop-result (loop for x in '(1 2 3 4 5 6)
+			 collect (count-num x dice)))
+	 (counts (make-array 6 :initial-contents loop-result)))
+    ;; check for count >= 3
+    (loop for x in '(1 2 3 4 5 6)
+       do (let ((c (aref counts (1- x))))
+	    (when (> c 2)
+	      (setf (aref counts (1- x)) (- c 3))
+	      (if (equal 1 x)
+		  (setf total (+ total 1000))
+		  (setf total (+ total (* 100 x)))))))
+    ;; one-off checks for 1 and 5
+    (+ total (* 100 (aref counts 0)) (* 50 (aref counts 4)))))
 
 (define-test test-score-of-an-empty-list-is-zero
     (assert-equal 0 (score nil)))
