@@ -1,5 +1,4 @@
-;;   Copyright 2013 Google Inc.
-;;
+;;   Copyright 2013 Google Inc. ;;
 ;;   Licensed under the Apache License, Version 2.0 (the "License");
 ;;   you may not use this file except in compliance with the License.
 ;;   You may obtain a copy of the License at
@@ -16,6 +15,7 @@
 ;; CLOS stands for Common Lisp Object System.
 ;; CLOS is common lisps' object oriented framework.
 
+;; color and speed are two properties on the racecar
 (defclass racecar () (color speed))
 
 (define-test test-defclass
@@ -25,12 +25,11 @@
       (setf (slot-value car-1 'speed) 220)
       (setf (slot-value car-2 'color) :blue)
       (setf (slot-value car-2 'speed) 240)
-      (assert-equal ____ (slot-value car-1 'color))
-      (assert-equal ____ (slot-value car-2 'speed))))
+      (assert-equal :red (slot-value car-1 'color))
+      (assert-equal 240 (slot-value car-2 'speed))))
 
 ;; CLOS provides functionality for creating getters / setters
 ;; for defined objects
-
 (defclass spaceship ()
   ((color :reader get-color :writer set-color)
    (speed :reader get-speed :writer set-speed)))
@@ -38,9 +37,9 @@
 (define-test test-clos-getters-and-setters
     (let ((ship-1 (make-instance 'spaceship)))
       (set-color :orange ship-1)
-      (assert-equal ____ (get-color ship-1))
+      (assert-equal :orange (get-color ship-1))
       (set-speed 1000 ship-1)
-      (assert-equal ____ (get-speed ship-1))))
+      (assert-equal 1000 (get-speed ship-1))))
 
 ;; CLOS also provides functionality to create accessors
 ;; to object data.
@@ -62,15 +61,15 @@
 (define-test test-access-counter
     (let ((x (make-instance 'value-with-access-counter)))
       ; check that no one has ever looked at the x value yet.
-      (assert-equal ____ (how-many-value-queries x))
+      (assert-equal 0 (how-many-value-queries x))
       ; check that the default value is zero.
-      (assert-equal ___ (get-value x))
+      (assert-equal 0 (get-value x))
       ; now that we've looked at it, there is a single access.
-      (assert-equal ___ (how-many-value-queries x))
+      (assert-equal 1 (how-many-value-queries x))
       ; check that we can set and read the value
       (set-value 33 x)
       (assert-equal 33 (get-value x))
-      (assert-equal ___ (how-many-value-queries x))))
+      (assert-equal 3 (how-many-value-queries x))))
 
 
 ; countdowner has a value which goes down every time you look at it
@@ -82,7 +81,8 @@
 ;; to satisfy the test-countdowner tests.
 ;; you may be interested in the 'decf function.
 (defmethod get-value ((object countdowner))
-  :WRITE-ME)
+  (if (eq (slot-value object 'value) 1) "bang"
+      (decf (slot-value object 'value))))
 
 
 (define-test test-countdowner
@@ -106,15 +106,15 @@
 (define-test test-inheritance
     (let ((circle-1 (make-instance 'circle))
           (shape-1 (make-instance 'shape)))
-      (assert-equal ____ (type-of shape-1))
-      (assert-equal ____ (type-of circle-1))
-      (true-or-false? ____ (typep circle-1 'circle))
-      (true-or-false? ____ (typep circle-1 'shape))
+      (assert-equal 'shape (type-of shape-1))
+      (assert-equal 'circle (type-of circle-1))
+      (true-or-false? t (typep circle-1 'circle))
+      (true-or-false? t (typep circle-1 'shape))
       (set-kind :circle circle-1)
       (set-pos '(3 4) circle-1)
       (set-radius 5 circle-1)
-      (assert-equal ____ (get-pos circle-1))
-      (assert-equal ____ (get-radius circle-1))))
+      (assert-equal '(3 4) (get-pos circle-1))
+      (assert-equal 5 (get-radius circle-1))))
 
 ;; Classes may also inherit from more than one base class.
 ;; This is known as multiple inheritance.
