@@ -30,7 +30,7 @@
    (repeat-2 (do-something arg1 arg2)))
 
   (assert-expands
-   ____
+   '(progn (setf x (+ 1 x)) (setf x (+ 1 x)))
    (repeat-2 (setf x (+ 1 x)))))
 
 
@@ -42,10 +42,10 @@
      preceded by a comma (,) are evaluated, rather than left as literals"
   (let ((num 5)
         (word 'dolphin))
-    (true-or-false? ___  (equal '(1 3 5) `(1 3 5)))
-    (true-or-false? ___  (equal '(1 3 5) `(1 3 num)))
-    (assert-equal ____ `(1 3 ,num))
-    (assert-equal ____ `(word ,word ,word word))))
+    (true-or-false? t (equal '(1 3 5) `(1 3 5)))
+    (true-or-false? nil  (equal '(1 3 5) `(1 3 num)))
+    (assert-equal '(1 3 5) `(1 3 ,num))
+    (assert-equal '(word dolphin dolphin word) `(word ,word ,word word))))
 
 
 (define-test test-at-form
@@ -56,9 +56,9 @@
       (assert-equal '(the axis are (x y z)) `(the axis are ,axis))
       (assert-equal '(the axis are x y z) `(the axis are ,@axis)))
     (let ((coordinates '((43.15 77.6) (42.36 71.06))))
-      (assert-equal ____
+      (assert-equal '(the coordinates are ((43.15 77.6) (42.36 71.06)))
         `(the coordinates are ,coordinates))
-      (assert-equal ____
+      (assert-equal '(the coordinates are (43.15 77.6) (42.36 71.06))
         `(the coordinates are ,@coordinates))))
 
 
@@ -80,14 +80,15 @@
   (let ((x 0)
         (y 0))
     (double-setf-BAD x y (+ x 100))
-    (assert-equal x ____)
-    (assert-equal y ____)))
+    (assert-equal x 100)
+    (assert-equal y 200)))
 
 ;; sets sym1 and sym2 to val
 (defmacro double-setf-SAFER (sym1 sym2 val)
-  (let ((new-fresh-symbol (gensym)))
+  (let ((new-fresh-symbol (gensym))) ;; create a fresh symbol
     `(let ((,new-fresh-symbol ,val))
-       (progn (setf ,sym1 ,new-fresh-symbol) (setf ,sym2 ,new-fresh-symbol)))))
+       (progn (setf ,sym1 ,new-fresh-symbol)
+	      (setf ,sym2 ,new-fresh-symbol)))))
 
 (define-test test-with-gensym
     "gensym creates a new symbol."
@@ -100,8 +101,8 @@
   (let ((x 0)
         (y 0))
     (double-setf-SAFER x y (+ x 100))
-    (assert-equal x ____)
-    (assert-equal y ____)))
+    (assert-equal x 100)
+    (assert-equal y 100)))
 
 
 ;; ----
@@ -121,8 +122,8 @@
   "log-form does not interfere with the usual return value"
   (assert-equal 1978 (log-form (* 2 23 43)))
   "log-form records the code which it has been passed"
-  (assert-equal ___ (length *log*))
-  (assert-equal ___ (first *log*))
+  (assert-equal 1 (length *log*))
+  (assert-equal '(* 2 23 43) (first *log*))
   "macros evaluating to more macros is ok, if confusing"
   (assert-equal 35 (log-form (log-form (- 2013 1978))))
   (assert-equal 3 (length *log*))
@@ -134,18 +135,19 @@
 
 (defvar *log-with-value* nil)
 
+(defmacro log-form (form)
+  "records the body form to the list *log* and then evalues the body normally"
+  `(let ((retval ,form))
+     (push ',form *log*)
+     retval))
+
 ;; you must write this macro
 (defmacro log-form-with-value (form)
   "records the body form, and the form's return value
    to the list *log-with-value* and then evalues the body normally"
-  `(let ((logform nil)
-         (retval ,form))
-
-     ;; YOUR MACRO COMPLETION CODE GOES HERE.
-
+  `(let ((logform ',form) (retval ,form))
+     (push `(:form ,logform :value ,retval) *log-with-value*)
      retval))
-
-
 
 (define-test test-log-form-and-value
     "log should start out empty"

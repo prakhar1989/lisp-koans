@@ -139,8 +139,8 @@
 (define-test test-multiple-inheritance
     (let ((my-colored-circle (make-instance 'colored-circle))
           (my-circled-color (make-instance 'circled-color)))
-      (assert-equal ____ (get-kind my-colored-circle))
-      (assert-equal ____ (get-kind my-circled-color))))
+      (assert-equal :default-color-kind (get-kind my-colored-circle))
+      (assert-equal :default-shape-kind (get-kind my-circled-color))))
 
 
 (defvar *last-kind-accessor* nil)
@@ -166,15 +166,15 @@
           (my-circle (make-instance 'circle))
           (my-color (make-instance 'color)))
       (get-kind my-shape)
-      (assert-equal ____ *last-kind-accessor*)
+      (assert-equal :shape *last-kind-accessor*)
       (get-kind my-circle)
-      (assert-equal ____ *last-kind-accessor*)
+      (assert-equal :circle *last-kind-accessor*)
       (get-kind my-color)
-      (assert-equal ____ *last-kind-accessor*)
+      (assert-equal :color *last-kind-accessor*)
       (get-kind my-colored-circle)
-      (assert-equal ____ *last-kind-accessor*)
+      (assert-equal :color *last-kind-accessor*)
       (get-kind my-circled-color)
-      (assert-equal ____ *last-kind-accessor*)))
+      (assert-equal :circle *last-kind-accessor*)))
 
 
 ;; Todo: consider adding :before and :after method control instructions.
